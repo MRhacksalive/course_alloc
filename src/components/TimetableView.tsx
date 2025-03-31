@@ -1,5 +1,5 @@
 
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -92,14 +92,14 @@ const TimetableView = ({ courses }: TimetableViewProps) => {
       <div className="min-w-[800px]">
         <div className="grid grid-cols-[100px_repeat(5,1fr)]">
           {/* Header row with days */}
-          <div className="h-12 border-b flex items-end justify-center pb-2 font-semibold text-university-700">
+          <div className="h-12 border-b flex items-end justify-center pb-2 font-semibold text-university-700 dark:text-university-300">
             Time
           </div>
           
           {days.map(day => (
             <div 
               key={day} 
-              className="h-12 border-b border-l flex items-end justify-center pb-2 font-semibold text-university-700"
+              className="h-12 border-b border-l flex items-end justify-center pb-2 font-semibold text-university-700 dark:text-university-300"
             >
               {day}
             </div>
@@ -109,7 +109,7 @@ const TimetableView = ({ courses }: TimetableViewProps) => {
           {timeSlots.map((slot, slotIndex) => (
             <React.Fragment key={slot.value}>
               {/* Time label */}
-              <div className="border-b py-2 px-2 text-sm text-center text-university-800">
+              <div className="border-b py-2 px-2 text-sm text-center text-university-800 dark:text-university-200">
                 {slot.label}
               </div>
               
@@ -120,7 +120,7 @@ const TimetableView = ({ courses }: TimetableViewProps) => {
                 return (
                   <div 
                     key={`${day}-${slot.value}`} 
-                    className="border-b border-l relative min-h-[60px]"
+                    className="border-b border-l relative min-h-[60px] dark:border-gray-700"
                   >
                     {coursesInSlot.map(course => {
                       const duration = getCourseDuration(course.startTime, course.endTime);

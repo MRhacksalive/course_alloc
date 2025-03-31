@@ -82,6 +82,54 @@ const mockAllocatedCourses = [
     location: "Room 204",
     status: "pending",
     color: "bg-purple-500"
+  },
+  {
+    id: 7,
+    name: "Machine Learning",
+    code: "CS504",
+    professor: "Dr. Geoffrey Hinton",
+    day: "Tuesday",
+    startTime: "14:00",
+    endTime: "16:00",
+    location: "Room 305",
+    status: "confirmed",
+    color: "bg-orange-500"
+  },
+  {
+    id: 8,
+    name: "Machine Learning",
+    code: "CS504",
+    professor: "Dr. Geoffrey Hinton",
+    day: "Thursday",
+    startTime: "10:00",
+    endTime: "12:00",
+    location: "Room 305",
+    status: "confirmed",
+    color: "bg-orange-500"
+  },
+  {
+    id: 9,
+    name: "Web Development",
+    code: "CS202",
+    professor: "Dr. Tim Berners-Lee",
+    day: "Wednesday",
+    startTime: "13:00",
+    endTime: "15:00",
+    location: "Lab 2",
+    status: "confirmed",
+    color: "bg-pink-500"
+  },
+  {
+    id: 10,
+    name: "Web Development",
+    code: "CS202",
+    professor: "Dr. Tim Berners-Lee",
+    day: "Friday",
+    startTime: "13:00",
+    endTime: "15:00",
+    location: "Lab 2",
+    status: "confirmed",
+    color: "bg-pink-500"
   }
 ];
 
@@ -132,15 +180,15 @@ const AllocatedCourses = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div className="min-h-screen flex bg-gray-50 dark:bg-gray-900">
       <Sidebar />
       
       <div className="flex-1 p-6 md:p-8 ml-0 md:ml-64">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <header className="mb-8">
-            <h1 className="text-3xl font-bold text-university-800">My Courses</h1>
-            <p className="text-university-600">View your allocated courses and timetable</p>
+            <h1 className="text-3xl font-bold text-university-800 dark:text-university-200">My Courses</h1>
+            <p className="text-university-600 dark:text-university-400">View your allocated courses and timetable</p>
           </header>
           
           {/* Tabs */}
@@ -162,10 +210,10 @@ const AllocatedCourses = () => {
                 <CardHeader>
                   <div className="flex justify-between items-center">
                     <div>
-                      <CardTitle>Weekly Schedule</CardTitle>
-                      <CardDescription>Your allocated course schedule for this semester</CardDescription>
+                      <CardTitle className="dark:text-white">Weekly Schedule</CardTitle>
+                      <CardDescription className="dark:text-gray-300">Your allocated course schedule for this semester</CardDescription>
                     </div>
-                    <Button variant="outline" className="flex items-center gap-2">
+                    <Button variant="outline" className="flex items-center gap-2 dark:text-gray-300 dark:border-gray-600">
                       <Download className="h-4 w-4" /> Export
                     </Button>
                   </div>
@@ -180,8 +228,8 @@ const AllocatedCourses = () => {
             <TabsContent value="list">
               <Card>
                 <CardHeader>
-                  <CardTitle>Course List</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="dark:text-white">Course List</CardTitle>
+                  <CardDescription className="dark:text-gray-300">
                     You have {confirmedCourses.length} confirmed and {pendingCourses.length} pending courses
                   </CardDescription>
                 </CardHeader>
@@ -189,18 +237,18 @@ const AllocatedCourses = () => {
                   <div className="space-y-6">
                     {groupedCourses.length > 0 ? (
                       groupedCourses.map((course) => (
-                        <div key={course.code} className="border rounded-lg overflow-hidden">
-                          <div className="flex justify-between items-center p-4 bg-gray-50 border-b">
+                        <div key={course.code} className="border dark:border-gray-700 rounded-lg overflow-hidden">
+                          <div className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-800 border-b dark:border-gray-700">
                             <div>
-                              <h3 className="font-medium text-university-800">{course.name} ({course.code})</h3>
-                              <p className="text-sm text-university-600">Prof. {course.professor}</p>
+                              <h3 className="font-medium text-university-800 dark:text-university-200">{course.name} ({course.code})</h3>
+                              <p className="text-sm text-university-600 dark:text-university-400">Prof. {course.professor}</p>
                             </div>
                             <div className="flex items-center gap-4">
                               <Badge
                                 className={
                                   course.status === "confirmed"
-                                    ? "bg-green-100 text-green-800 hover:bg-green-200"
-                                    : "bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
+                                    ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-800"
+                                    : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-800"
                                 }
                               >
                                 {course.status === "confirmed" ? "Confirmed" : "Pending"}
@@ -208,7 +256,7 @@ const AllocatedCourses = () => {
                               <Button 
                                 variant="ghost" 
                                 size="sm" 
-                                className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900 dark:hover:text-red-300"
                                 onClick={() => handleDropCourse(course.code)}
                               >
                                 <X className="h-4 w-4" />
@@ -216,14 +264,14 @@ const AllocatedCourses = () => {
                             </div>
                           </div>
                           
-                          <div className="p-4">
-                            <h4 className="text-sm font-medium text-university-700 mb-2">Schedule:</h4>
+                          <div className="p-4 dark:bg-gray-800">
+                            <h4 className="text-sm font-medium text-university-700 dark:text-university-300 mb-2">Schedule:</h4>
                             <div className="space-y-2">
                               {course.sessions.map((session) => (
                                 <div key={session.id} className="flex items-center text-sm">
-                                  <div className="w-24 font-medium">{session.day}:</div>
-                                  <div>{session.startTime} - {session.endTime}</div>
-                                  <div className="ml-4 text-gray-500">({session.location})</div>
+                                  <div className="w-24 font-medium dark:text-gray-200">{session.day}:</div>
+                                  <div className="dark:text-gray-300">{session.startTime} - {session.endTime}</div>
+                                  <div className="ml-4 text-gray-500 dark:text-gray-400">({session.location})</div>
                                 </div>
                               ))}
                             </div>
@@ -232,8 +280,8 @@ const AllocatedCourses = () => {
                       ))
                     ) : (
                       <div className="text-center py-12">
-                        <h3 className="text-lg font-medium text-university-800 mb-2">No courses allocated yet</h3>
-                        <p className="text-university-600">Check the available courses page to apply for courses</p>
+                        <h3 className="text-lg font-medium text-university-800 dark:text-university-200 mb-2">No courses allocated yet</h3>
+                        <p className="text-university-600 dark:text-university-400">Check the available courses page to apply for courses</p>
                       </div>
                     )}
                   </div>

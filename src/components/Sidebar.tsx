@@ -6,15 +6,15 @@ import {
   BookOpen,
   LayoutDashboard,
   BookOpenCheck,
-  ListChecks,
   User,
   LogOut,
   Menu,
   X,
-  School,
-  Users
+  Moon,
+  Sun,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTheme } from "@/hooks/use-theme";
 
 interface SidebarProps {
   isAdmin?: boolean;
@@ -24,6 +24,7 @@ const Sidebar = ({ isAdmin = false }: SidebarProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { theme, setTheme } = useTheme();
 
   const studentLinks = [
     { title: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
@@ -35,7 +36,7 @@ const Sidebar = ({ isAdmin = false }: SidebarProps) => {
   const adminLinks = [
     { title: "Admin Dashboard", path: "/admin", icon: LayoutDashboard },
     { title: "Manage Courses", path: "/admin/courses", icon: BookOpen },
-    { title: "Manage Students", path: "/admin/students", icon: Users },
+    { title: "Manage Students", path: "/admin/students", icon: User },
   ];
 
   const links = isAdmin ? adminLinks : studentLinks;
@@ -48,11 +49,15 @@ const Sidebar = ({ isAdmin = false }: SidebarProps) => {
     setCollapsed(!collapsed);
   };
 
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
+
   return (
     <>
       {/* Mobile Menu Toggle */}
       <button
-        className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-white shadow-md"
+        className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-white dark:bg-gray-800 shadow-md"
         onClick={toggleSidebar}
       >
         {collapsed ? <Menu size={20} /> : <X size={20} />}
@@ -61,16 +66,16 @@ const Sidebar = ({ isAdmin = false }: SidebarProps) => {
       {/* Sidebar */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transition-transform duration-300 transform md:translate-x-0 flex flex-col",
+          "fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-gray-800 shadow-lg transition-transform duration-300 transform md:translate-x-0 flex flex-col",
           collapsed ? "-translate-x-full" : "translate-x-0"
         )}
       >
         {/* Logo and Title */}
-        <div className="flex items-center p-6 border-b">
-          <BookOpen className="h-8 w-8 text-university-700" />
+        <div className="flex items-center p-6 border-b dark:border-gray-700">
+          <BookOpen className="h-8 w-8 text-university-700 dark:text-university-400" />
           <div className="ml-2">
-            <h1 className="text-xl font-bold text-university-800">UniCourse</h1>
-            <p className="text-xs text-university-600">
+            <h1 className="text-xl font-bold text-university-800 dark:text-university-200">UniCourse</h1>
+            <p className="text-xs text-university-600 dark:text-university-400">
               {isAdmin ? "Admin Portal" : "Student Portal"}
             </p>
           </div>
@@ -88,8 +93,8 @@ const Sidebar = ({ isAdmin = false }: SidebarProps) => {
                   className={cn(
                     "w-full justify-start",
                     location.pathname === link.path
-                      ? "bg-university-100 text-university-800"
-                      : "text-university-600 hover:bg-university-50 hover:text-university-800"
+                      ? "bg-university-100 text-university-800 dark:bg-university-900 dark:text-university-200"
+                      : "text-university-600 hover:bg-university-50 hover:text-university-800 dark:text-university-400 dark:hover:bg-gray-700 dark:hover:text-university-200"
                   )}
                   onClick={() => navigate(link.path)}
                 >
@@ -101,11 +106,32 @@ const Sidebar = ({ isAdmin = false }: SidebarProps) => {
           </ul>
         </nav>
 
+        {/* Theme Toggle */}
+        <div className="p-4 border-t dark:border-gray-700">
+          <Button
+            variant="outline"
+            className="w-full justify-start text-university-600 hover:bg-university-50 hover:text-university-800 dark:text-university-400 dark:border-gray-700 dark:hover:bg-gray-700 dark:hover:text-university-200"
+            onClick={toggleTheme}
+          >
+            {theme === "dark" ? (
+              <>
+                <Sun className="h-5 w-5 mr-2" />
+                Light Mode
+              </>
+            ) : (
+              <>
+                <Moon className="h-5 w-5 mr-2" />
+                Dark Mode
+              </>
+            )}
+          </Button>
+        </div>
+
         {/* Footer with Logout */}
-        <div className="p-4 border-t">
+        <div className="p-4 border-t dark:border-gray-700">
           <Button
             variant="ghost"
-            className="w-full justify-start text-university-600 hover:bg-university-50 hover:text-university-800"
+            className="w-full justify-start text-university-600 hover:bg-university-50 hover:text-university-800 dark:text-university-400 dark:hover:bg-gray-700 dark:hover:text-university-200"
             onClick={handleLogout}
           >
             <LogOut className="h-5 w-5 mr-2" />
