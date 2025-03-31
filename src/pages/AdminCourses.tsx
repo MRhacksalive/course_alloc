@@ -1,513 +1,396 @@
 
-import { useState } from "react";
+import React, { useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useToast } from "@/components/ui/use-toast";
-import { Search, Plus, Edit, Trash2, Clock, Save } from "lucide-react";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/components/ui/use-toast";
+import { Plus, Pencil, Trash2, Search } from "lucide-react";
 
-// Mock departments
-const departments = [
-  "Computer Science",
-  "Mathematics",
-  "Physics",
-  "Chemistry",
-  "Psychology",
-  "Economics"
-];
-
-// Mock course data
+// Mock data
 const initialCourses = [
   {
     id: 1,
     name: "Introduction to Computer Science",
     code: "CS101",
     professor: "Dr. Alan Turing",
-    credits: 4,
-    seats: 40,
-    schedule: "Mon, Wed 10:00 - 12:00",
+    credits: 3,
+    seats: 50,
+    schedule: "Mon, Wed 10:00-12:00",
     department: "Computer Science"
   },
   {
     id: 2,
-    name: "Calculus I",
-    code: "MATH201",
-    professor: "Dr. Katherine Johnson",
-    credits: 3,
-    seats: 50,
-    schedule: "Tue, Thu 14:00 - 16:00",
-    department: "Mathematics"
-  },
-  {
-    id: 3,
-    name: "Introduction to Psychology",
-    code: "PSY101",
-    professor: "Dr. Sigmund Freud",
-    credits: 3,
-    seats: 60,
-    schedule: "Mon, Wed 13:00 - 14:30",
-    department: "Psychology"
-  },
-  {
-    id: 4,
-    name: "Organic Chemistry",
-    code: "CHEM302",
-    professor: "Dr. Marie Curie",
-    credits: 4,
-    seats: 30,
-    schedule: "Mon, Thu 09:00 - 11:00",
-    department: "Chemistry"
-  },
-  {
-    id: 5,
     name: "Database Systems",
     code: "CS305",
     professor: "Dr. Edgar Codd",
     credits: 4,
-    seats: 35,
-    schedule: "Tue, Fri 10:00 - 12:00",
+    seats: 40,
+    schedule: "Tue, Fri 10:00-12:00",
     department: "Computer Science"
+  },
+  {
+    id: 3,
+    name: "Artificial Intelligence",
+    code: "CS401",
+    professor: "Dr. John McCarthy",
+    credits: 4,
+    seats: 30,
+    schedule: "Mon, Thu 15:00-17:00",
+    department: "Computer Science"
+  },
+  {
+    id: 4,
+    name: "Machine Learning",
+    code: "CS504",
+    professor: "Dr. Geoffrey Hinton",
+    credits: 4,
+    seats: 25,
+    schedule: "Tue, Thu 14:00-16:00",
+    department: "Computer Science"
+  },
+  {
+    id: 5,
+    name: "Calculus I",
+    code: "MATH101",
+    professor: "Dr. Isaac Newton",
+    credits: 3,
+    seats: 60,
+    schedule: "Mon, Wed 13:00-15:00",
+    department: "Mathematics"
   }
 ];
 
 const AdminCourses = () => {
   const [courses, setCourses] = useState(initialCourses);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [newCourse, setNewCourse] = useState({
+    id: 0,
     name: "",
     code: "",
     professor: "",
     credits: 3,
     seats: 30,
     schedule: "",
-    department: ""
+    department: "Computer Science"
   });
-  const [editingCourse, setEditingCourse] = useState<null | typeof newCourse>(null);
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  
+  const [isEditing, setIsEditing] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
-  
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-  };
-  
+
   const filteredCourses = courses.filter(course => 
-    course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    course.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    course.professor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    course.department.toLowerCase().includes(searchTerm.toLowerCase())
+    course.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    course.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    course.professor.toLowerCase().includes(searchQuery.toLowerCase())
   );
-  
-  const handleAddCourse = () => {
-    // Validate form
-    if (!newCourse.name || !newCourse.code || !newCourse.professor || !newCourse.department || !newCourse.schedule) {
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setNewCourse(prev => ({ ...prev, [name]: name === "credits" || name === "seats" ? parseInt(value) || 0 : value }));
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
+    setNewCourse(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = () => {
+    if (!newCourse.name || !newCourse.code || !newCourse.professor || !newCourse.schedule) {
       toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields.",
-        variant: "destructive"
+        title: "Missing Fields",
+        description: "Please fill in all required fields",
+        variant: "destructive",
       });
       return;
     }
-    
-    const newId = Math.max(...courses.map(c => c.id)) + 1;
-    setCourses([...courses, { ...newCourse, id: newId }]);
-    
-    toast({
-      title: "Course Added",
-      description: `${newCourse.code}: ${newCourse.name} has been added.`
-    });
-    
+
+    if (isEditing) {
+      // Update existing course
+      setCourses(courses.map(course => 
+        course.id === newCourse.id ? newCourse : course
+      ));
+      toast({
+        title: "Course Updated",
+        description: `${newCourse.code} has been updated successfully`,
+      });
+    } else {
+      // Add new course with a new ID
+      const nextId = Math.max(...courses.map(course => course.id)) + 1;
+      setCourses([...courses, { ...newCourse, id: nextId }]);
+      toast({
+        title: "Course Added",
+        description: `${newCourse.code} has been added successfully`,
+      });
+    }
+
     // Reset form and close dialog
     setNewCourse({
+      id: 0,
       name: "",
       code: "",
       professor: "",
       credits: 3,
       seats: 30,
       schedule: "",
-      department: ""
+      department: "Computer Science"
     });
-    setIsAddDialogOpen(false);
+    setIsEditing(false);
+    setIsDialogOpen(false);
   };
-  
-  const handleEditCourse = (course: typeof courses[0]) => {
-    setEditingCourse(course);
-    setIsEditDialogOpen(true);
+
+  const handleEdit = (course: typeof initialCourses[0]) => {
+    setNewCourse(course);
+    setIsEditing(true);
+    setIsDialogOpen(true);
   };
-  
-  const handleSaveEdit = () => {
-    if (!editingCourse) return;
-    
-    setCourses(courses.map(course => 
-      course.id === editingCourse.id ? editingCourse : course
-    ));
-    
-    toast({
-      title: "Course Updated",
-      description: `${editingCourse.code}: ${editingCourse.name} has been updated.`
-    });
-    
-    setIsEditDialogOpen(false);
-    setEditingCourse(null);
-  };
-  
-  const handleDeleteCourse = (id: number) => {
+
+  const handleDelete = (id: number) => {
     setCourses(courses.filter(course => course.id !== id));
-    
     toast({
       title: "Course Deleted",
-      description: "The course has been removed from the system."
+      description: "The course has been removed from the system",
     });
   };
-  
+
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div className="min-h-screen flex bg-gray-50 dark:bg-gray-900">
       <Sidebar isAdmin />
       
       <div className="flex-1 p-6 md:p-8 ml-0 md:ml-64">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <header className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+          <header className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-university-800">Course Management</h1>
-              <p className="text-university-600">Add, edit or remove courses from the system</p>
+              <h1 className="text-3xl font-bold text-university-800 dark:text-university-200">Manage Courses</h1>
+              <p className="text-university-600 dark:text-university-400">Add, edit or remove courses from the system</p>
             </div>
             
-            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="mt-4 sm:mt-0 bg-university-600 hover:bg-university-700">
+                <Button className="mt-4 md:mt-0 bg-university-600 hover:bg-university-700 dark:bg-university-700 dark:hover:bg-university-600">
                   <Plus className="mr-2 h-4 w-4" /> Add New Course
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[550px]">
+              <DialogContent className="sm:max-w-[550px] dark:bg-gray-800 dark:text-white">
                 <DialogHeader>
-                  <DialogTitle>Add New Course</DialogTitle>
-                  <DialogDescription>
-                    Enter the details for the new course. Click save when you're done.
+                  <DialogTitle>{isEditing ? "Edit Course" : "Add New Course"}</DialogTitle>
+                  <DialogDescription className="dark:text-gray-300">
+                    {isEditing ? "Update the course details below" : "Fill in the course details below to add it to the system"}
                   </DialogDescription>
                 </DialogHeader>
                 
-                <div className="grid grid-cols-2 gap-4 py-4">
-                  <div className="space-y-2 col-span-2">
-                    <Label htmlFor="name">Course Name</Label>
-                    <Input 
-                      id="name" 
-                      value={newCourse.name} 
-                      onChange={(e) => setNewCourse({ ...newCourse, name: e.target.value })}
-                      placeholder="e.g. Introduction to Computer Science"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="code">Course Code</Label>
-                    <Input 
-                      id="code" 
-                      value={newCourse.code} 
-                      onChange={(e) => setNewCourse({ ...newCourse, code: e.target.value })}
-                      placeholder="e.g. CS101"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="department">Department</Label>
-                    <Select 
-                      value={newCourse.department}
-                      onValueChange={(value) => setNewCourse({ ...newCourse, department: value })}
-                    >
-                      <SelectTrigger id="department">
-                        <SelectValue placeholder="Select department" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {departments.map((dept) => (
-                          <SelectItem key={dept} value={dept}>
-                            {dept}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Course Name</Label>
+                      <Input 
+                        id="name" 
+                        name="name"
+                        value={newCourse.name}
+                        onChange={handleInputChange}
+                        placeholder="e.g. Introduction to Computer Science"
+                        className="dark:bg-gray-700 dark:border-gray-600"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="code">Course Code</Label>
+                      <Input 
+                        id="code" 
+                        name="code"
+                        value={newCourse.code}
+                        onChange={handleInputChange}
+                        placeholder="e.g. CS101"
+                        className="dark:bg-gray-700 dark:border-gray-600"
+                      />
+                    </div>
                   </div>
                   
                   <div className="space-y-2">
                     <Label htmlFor="professor">Professor</Label>
                     <Input 
                       id="professor" 
-                      value={newCourse.professor} 
-                      onChange={(e) => setNewCourse({ ...newCourse, professor: e.target.value })}
-                      placeholder="e.g. Dr. Alan Turing"
+                      name="professor"
+                      value={newCourse.professor}
+                      onChange={handleInputChange}
+                      placeholder="e.g. Dr. John Doe"
+                      className="dark:bg-gray-700 dark:border-gray-600"
                     />
                   </div>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="credits">Credits</Label>
-                    <Select 
-                      value={String(newCourse.credits)}
-                      onValueChange={(value) => setNewCourse({ ...newCourse, credits: parseInt(value) })}
-                    >
-                      <SelectTrigger id="credits">
-                        <SelectValue placeholder="Select credits" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {[1, 2, 3, 4, 5].map((credit) => (
-                          <SelectItem key={credit} value={String(credit)}>
-                            {credit}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="credits">Credits</Label>
+                      <Input 
+                        id="credits" 
+                        name="credits"
+                        type="number"
+                        value={newCourse.credits}
+                        onChange={handleInputChange}
+                        className="dark:bg-gray-700 dark:border-gray-600"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="seats">Available Seats</Label>
+                      <Input 
+                        id="seats" 
+                        name="seats"
+                        type="number"
+                        value={newCourse.seats}
+                        onChange={handleInputChange}
+                        className="dark:bg-gray-700 dark:border-gray-600"
+                      />
+                    </div>
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="seats">Available Seats</Label>
-                    <Input 
-                      id="seats" 
-                      type="number"
-                      min={1}
-                      value={newCourse.seats} 
-                      onChange={(e) => setNewCourse({ ...newCourse, seats: parseInt(e.target.value) })}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2 col-span-2">
                     <Label htmlFor="schedule">Schedule</Label>
                     <Input 
                       id="schedule" 
-                      value={newCourse.schedule} 
-                      onChange={(e) => setNewCourse({ ...newCourse, schedule: e.target.value })}
-                      placeholder="e.g. Mon, Wed 10:00 - 12:00"
+                      name="schedule"
+                      value={newCourse.schedule}
+                      onChange={handleInputChange}
+                      placeholder="e.g. Mon, Wed 10:00-12:00"
+                      className="dark:bg-gray-700 dark:border-gray-600"
                     />
-                    <p className="text-xs text-university-500">Format: Day, Day HH:MM - HH:MM</p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="department">Department</Label>
+                    <Select 
+                      value={newCourse.department} 
+                      onValueChange={(value) => handleSelectChange("department", value)}
+                    >
+                      <SelectTrigger className="dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        <SelectValue placeholder="Select Department" />
+                      </SelectTrigger>
+                      <SelectContent className="dark:bg-gray-700">
+                        <SelectItem value="Computer Science">Computer Science</SelectItem>
+                        <SelectItem value="Mathematics">Mathematics</SelectItem>
+                        <SelectItem value="Physics">Physics</SelectItem>
+                        <SelectItem value="Chemistry">Chemistry</SelectItem>
+                        <SelectItem value="Biology">Biology</SelectItem>
+                        <SelectItem value="Engineering">Engineering</SelectItem>
+                        <SelectItem value="Business">Business</SelectItem>
+                        <SelectItem value="Arts">Arts</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
                 
                 <DialogFooter>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setIsAddDialogOpen(false)}
-                  >
+                  <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
                     Cancel
                   </Button>
-                  <Button onClick={handleAddCourse}>Add Course</Button>
+                  <Button onClick={handleSubmit} className="bg-university-600 hover:bg-university-700">
+                    {isEditing ? "Update Course" : "Add Course"}
+                  </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
           </header>
           
           {/* Search Bar */}
-          <Card className="mb-8">
-            <CardContent className="p-4">
+          <Card className="mb-8 dark:bg-gray-800 dark:border-gray-700">
+            <CardContent className="pt-6">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500" />
                 <Input 
-                  placeholder="Search courses by name, code, professor or department..."
-                  className="pl-10"
-                  value={searchTerm}
-                  onChange={handleSearchChange}
+                  placeholder="Search courses by name, code, or professor..." 
+                  className="pl-10 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
             </CardContent>
           </Card>
           
-          {/* Course Table */}
-          <Card>
+          {/* Courses Table */}
+          <Card className="dark:bg-gray-800 dark:border-gray-700">
             <CardHeader>
-              <CardTitle>All Courses</CardTitle>
-              <CardDescription>
-                Showing {filteredCourses.length} out of {courses.length} total courses
+              <CardTitle className="text-xl dark:text-white">All Courses</CardTitle>
+              <CardDescription className="dark:text-gray-300">
+                Showing {filteredCourses.length} courses
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[100px]">Code</TableHead>
-                      <TableHead>Course Name</TableHead>
-                      <TableHead>Department</TableHead>
-                      <TableHead>Professor</TableHead>
-                      <TableHead className="text-center">Credits</TableHead>
-                      <TableHead className="text-center">Seats</TableHead>
-                      <TableHead>Schedule</TableHead>
-                      <TableHead className="text-right w-[120px]">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredCourses.length > 0 ? (
-                      filteredCourses.map((course) => (
-                        <TableRow key={course.id}>
-                          <TableCell className="font-medium">{course.code}</TableCell>
-                          <TableCell>{course.name}</TableCell>
-                          <TableCell>
-                            <Badge variant="secondary">{course.department}</Badge>
-                          </TableCell>
-                          <TableCell>{course.professor}</TableCell>
-                          <TableCell className="text-center">{course.credits}</TableCell>
-                          <TableCell className="text-center">{course.seats}</TableCell>
-                          <TableCell className="flex items-center">
-                            <Clock className="mr-2 h-4 w-4 text-university-500" />
-                            <span>{course.schedule}</span>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex justify-end">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleEditCourse(course)}
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                                onClick={() => handleDeleteCourse(course.id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={8} className="text-center py-8 text-university-600">
-                          No courses found matching your search.
+              <Table>
+                <TableHeader>
+                  <TableRow className="dark:border-gray-600">
+                    <TableHead className="dark:text-gray-300">Code</TableHead>
+                    <TableHead className="dark:text-gray-300">Course Name</TableHead>
+                    <TableHead className="dark:text-gray-300">Professor</TableHead>
+                    <TableHead className="dark:text-gray-300">Credits</TableHead>
+                    <TableHead className="dark:text-gray-300">Seats</TableHead>
+                    <TableHead className="dark:text-gray-300">Schedule</TableHead>
+                    <TableHead className="dark:text-gray-300">Department</TableHead>
+                    <TableHead className="text-right dark:text-gray-300">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredCourses.length > 0 ? (
+                    filteredCourses.map((course) => (
+                      <TableRow key={course.id} className="dark:border-gray-600">
+                        <TableCell className="font-medium dark:text-white">{course.code}</TableCell>
+                        <TableCell className="dark:text-white">{course.name}</TableCell>
+                        <TableCell className="dark:text-gray-300">{course.professor}</TableCell>
+                        <TableCell className="dark:text-gray-300">{course.credits}</TableCell>
+                        <TableCell className="dark:text-gray-300">{course.seats}</TableCell>
+                        <TableCell className="dark:text-gray-300">{course.schedule}</TableCell>
+                        <TableCell className="dark:text-gray-300">{course.department}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => handleEdit(course)}
+                              className="dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:bg-gray-600"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => handleDelete(course.id)}
+                              className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-red-900/30"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center py-8 dark:text-gray-300">
+                        No courses found matching your search criteria.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
         </div>
       </div>
-      
-      {/* Edit Course Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-[550px]">
-          <DialogHeader>
-            <DialogTitle>Edit Course</DialogTitle>
-            <DialogDescription>
-              Make changes to the course details. Click save when you're done.
-            </DialogDescription>
-          </DialogHeader>
-          
-          {editingCourse && (
-            <>
-              <div className="grid grid-cols-2 gap-4 py-4">
-                <div className="space-y-2 col-span-2">
-                  <Label htmlFor="edit-name">Course Name</Label>
-                  <Input 
-                    id="edit-name" 
-                    value={editingCourse.name} 
-                    onChange={(e) => setEditingCourse({ ...editingCourse, name: e.target.value })}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="edit-code">Course Code</Label>
-                  <Input 
-                    id="edit-code" 
-                    value={editingCourse.code} 
-                    onChange={(e) => setEditingCourse({ ...editingCourse, code: e.target.value })}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="edit-department">Department</Label>
-                  <Select 
-                    value={editingCourse.department}
-                    onValueChange={(value) => setEditingCourse({ ...editingCourse, department: value })}
-                  >
-                    <SelectTrigger id="edit-department">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {departments.map((dept) => (
-                        <SelectItem key={dept} value={dept}>
-                          {dept}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="edit-professor">Professor</Label>
-                  <Input 
-                    id="edit-professor" 
-                    value={editingCourse.professor} 
-                    onChange={(e) => setEditingCourse({ ...editingCourse, professor: e.target.value })}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="edit-credits">Credits</Label>
-                  <Select 
-                    value={String(editingCourse.credits)}
-                    onValueChange={(value) => setEditingCourse({ ...editingCourse, credits: parseInt(value) })}
-                  >
-                    <SelectTrigger id="edit-credits">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[1, 2, 3, 4, 5].map((credit) => (
-                        <SelectItem key={credit} value={String(credit)}>
-                          {credit}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="edit-seats">Available Seats</Label>
-                  <Input 
-                    id="edit-seats" 
-                    type="number"
-                    min={1}
-                    value={editingCourse.seats} 
-                    onChange={(e) => setEditingCourse({ ...editingCourse, seats: parseInt(e.target.value) })}
-                  />
-                </div>
-                
-                <div className="space-y-2 col-span-2">
-                  <Label htmlFor="edit-schedule">Schedule</Label>
-                  <Input 
-                    id="edit-schedule" 
-                    value={editingCourse.schedule} 
-                    onChange={(e) => setEditingCourse({ ...editingCourse, schedule: e.target.value })}
-                  />
-                  <p className="text-xs text-university-500">Format: Day, Day HH:MM - HH:MM</p>
-                </div>
-              </div>
-              
-              <DialogFooter>
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    setIsEditDialogOpen(false);
-                    setEditingCourse(null);
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button onClick={handleSaveEdit} className="bg-university-600 hover:bg-university-700">
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Changes
-                </Button>
-              </DialogFooter>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

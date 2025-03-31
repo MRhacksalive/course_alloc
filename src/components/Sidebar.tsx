@@ -12,9 +12,16 @@ import {
   X,
   Moon,
   Sun,
+  Monitor,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/use-theme";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface SidebarProps {
   isAdmin?: boolean;
@@ -24,7 +31,7 @@ const Sidebar = ({ isAdmin = false }: SidebarProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
 
   const studentLinks = [
     { title: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
@@ -50,7 +57,18 @@ const Sidebar = ({ isAdmin = false }: SidebarProps) => {
   };
 
   const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
+    const nextTheme = theme === "dark" ? "light" : theme === "light" ? "system" : "dark";
+    setTheme(nextTheme);
+  };
+
+  const getThemeIcon = () => {
+    if (theme === "system") return <Monitor className="h-5 w-5" />;
+    return resolvedTheme === "dark" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />;
+  };
+
+  const getThemeText = () => {
+    if (theme === "system") return "System Theme";
+    return resolvedTheme === "dark" ? "Dark Mode" : "Light Mode";
   };
 
   return (
@@ -96,7 +114,12 @@ const Sidebar = ({ isAdmin = false }: SidebarProps) => {
                       ? "bg-university-100 text-university-800 dark:bg-university-900 dark:text-university-200"
                       : "text-university-600 hover:bg-university-50 hover:text-university-800 dark:text-university-400 dark:hover:bg-gray-700 dark:hover:text-university-200"
                   )}
-                  onClick={() => navigate(link.path)}
+                  onClick={() => {
+                    navigate(link.path);
+                    if (window.innerWidth < 768) {
+                      setCollapsed(true);
+                    }
+                  }}
                 >
                   <link.icon className="h-5 w-5 mr-2" />
                   {link.title}
@@ -108,23 +131,28 @@ const Sidebar = ({ isAdmin = false }: SidebarProps) => {
 
         {/* Theme Toggle */}
         <div className="p-4 border-t dark:border-gray-700">
-          <Button
-            variant="outline"
-            className="w-full justify-start text-university-600 hover:bg-university-50 hover:text-university-800 dark:text-university-400 dark:border-gray-700 dark:hover:bg-gray-700 dark:hover:text-university-200"
-            onClick={toggleTheme}
-          >
-            {theme === "dark" ? (
-              <>
-                <Sun className="h-5 w-5 mr-2" />
-                Light Mode
-              </>
-            ) : (
-              <>
-                <Moon className="h-5 w-5 mr-2" />
-                Dark Mode
-              </>
-            )}
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-between text-university-600 hover:bg-university-50 hover:text-university-800 dark:text-university-400 dark:border-gray-700 dark:hover:bg-gray-700 dark:hover:text-university-200"
+                  onClick={toggleTheme}
+                >
+                  <div className="flex items-center">
+                    {getThemeIcon()}
+                    <span className="ml-2">{getThemeText()}</span>
+                  </div>
+                  <span className="text-xs opacity-70">
+                    {theme === "system" ? "(Auto)" : theme === "dark" ? "(Manual)" : "(Manual)"}
+                  </span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Click to cycle between light, dark, and system theme</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
 
         {/* Footer with Logout */}
