@@ -12,7 +12,6 @@ import {
   X,
   Moon,
   Sun,
-  Monitor,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/use-theme";
@@ -31,7 +30,7 @@ const Sidebar = ({ isAdmin = false }: SidebarProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
 
   const studentLinks = [
     { title: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
@@ -57,18 +56,15 @@ const Sidebar = ({ isAdmin = false }: SidebarProps) => {
   };
 
   const toggleTheme = () => {
-    const nextTheme = theme === "dark" ? "light" : theme === "light" ? "system" : "dark";
-    setTheme(nextTheme);
+    setTheme(theme === "dark" ? "light" : "dark");
   };
 
   const getThemeIcon = () => {
-    if (theme === "system") return <Monitor className="h-5 w-5" />;
-    return resolvedTheme === "dark" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />;
+    return theme === "dark" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />;
   };
 
   const getThemeText = () => {
-    if (theme === "system") return "System Theme";
-    return resolvedTheme === "dark" ? "Dark Mode" : "Light Mode";
+    return theme === "dark" ? "Dark Mode" : "Light Mode";
   };
 
   return (
@@ -143,13 +139,10 @@ const Sidebar = ({ isAdmin = false }: SidebarProps) => {
                     {getThemeIcon()}
                     <span className="ml-2">{getThemeText()}</span>
                   </div>
-                  <span className="text-xs opacity-70">
-                    {theme === "system" ? "(Auto)" : theme === "dark" ? "(Manual)" : "(Manual)"}
-                  </span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="right">
-                <p>Click to cycle between light, dark, and system theme</p>
+                <p>Click to toggle between light and dark theme</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

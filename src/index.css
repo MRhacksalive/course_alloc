@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -97,5 +98,16 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+  
+  /* ensure full page transitions to dark mode */
+  html.dark {
+    @apply bg-gray-900;
+  }
+}
+
+@layer utilities {
+  .dark-transition {
+    @apply transition-colors duration-300 ease-in-out;
   }
 }
