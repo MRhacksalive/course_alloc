@@ -1,184 +1,156 @@
 
 import { useState } from "react";
 import Sidebar from "@/components/Sidebar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import TimetableView from "@/components/TimetableView";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/components/ui/use-toast";
-import { Calendar, ListChecks, Download, X } from "lucide-react";
+import { BookOpen, Clock, Calendar, MapPin, User } from "lucide-react";
+import TimetableView from "@/components/TimetableView";
 
-// Mock data - this would come from an API in a real application
-const mockAllocatedCourses = [
+// Sample data
+const myCourses = [
   {
     id: 1,
-    name: "Introduction to Computer Science",
     code: "CS101",
-    professor: "Dr. Alan Turing",
-    day: "Monday",
-    startTime: "10:00",
-    endTime: "12:00",
-    location: "Room 101",
-    status: "confirmed",
-    color: "bg-blue-500"
+    title: "Introduction to Computer Science",
+    instructor: "Dr. John Smith",
+    credits: 4,
+    schedule: "Mon, Wed 10:00 - 11:30",
+    location: "Science Building, Room 301",
+    status: "enrolled",
   },
   {
     id: 2,
-    name: "Introduction to Computer Science",
-    code: "CS101",
-    professor: "Dr. Alan Turing",
-    day: "Wednesday",
-    startTime: "10:00",
-    endTime: "12:00",
-    location: "Room 101",
-    status: "confirmed",
-    color: "bg-blue-500"
+    code: "MATH201",
+    title: "Calculus II",
+    instructor: "Prof. Maria Garcia",
+    credits: 3,
+    schedule: "Tue, Thu 13:00 - 14:30",
+    location: "Mathematics Department, Room 105",
+    status: "enrolled",
   },
   {
     id: 3,
-    name: "Database Systems",
-    code: "CS305",
-    professor: "Dr. Edgar Codd",
-    day: "Tuesday",
-    startTime: "10:00",
-    endTime: "12:00",
-    location: "Lab 3",
-    status: "confirmed",
-    color: "bg-green-500"
+    code: "ENG102",
+    title: "English Composition",
+    instructor: "Dr. Robert Johnson",
+    credits: 3,
+    schedule: "Wed, Fri 09:00 - 10:30",
+    location: "Arts Building, Room 204",
+    status: "enrolled",
   },
   {
     id: 4,
-    name: "Database Systems",
-    code: "CS305",
-    professor: "Dr. Edgar Codd",
-    day: "Friday",
+    code: "PHY103",
+    title: "Physics for Engineers",
+    instructor: "Prof. Alan Wong",
+    credits: 4,
+    schedule: "Mon, Thu 14:00 - 15:30",
+    location: "Science Building, Room 401",
+    status: "enrolled",
+  },
+];
+
+// Sample timetable data
+const timetableEvents = [
+  {
+    id: 1,
+    courseCode: "CS101",
+    courseName: "Introduction to Computer Science",
+    dayOfWeek: 1, // Monday
     startTime: "10:00",
-    endTime: "12:00",
-    location: "Lab 3",
-    status: "confirmed",
-    color: "bg-green-500"
+    endTime: "11:30",
+    location: "Science Building, Room 301",
+    color: "bg-blue-500",
+  },
+  {
+    id: 2,
+    courseCode: "PHY103",
+    courseName: "Physics for Engineers",
+    dayOfWeek: 1, // Monday
+    startTime: "14:00",
+    endTime: "15:30",
+    location: "Science Building, Room 401",
+    color: "bg-green-500",
+  },
+  {
+    id: 3,
+    courseCode: "MATH201",
+    courseName: "Calculus II",
+    dayOfWeek: 2, // Tuesday
+    startTime: "13:00",
+    endTime: "14:30",
+    location: "Mathematics Department, Room 105",
+    color: "bg-purple-500",
+  },
+  {
+    id: 4,
+    courseCode: "ENG102",
+    courseName: "English Composition",
+    dayOfWeek: 3, // Wednesday
+    startTime: "09:00",
+    endTime: "10:30",
+    location: "Arts Building, Room 204",
+    color: "bg-yellow-500",
   },
   {
     id: 5,
-    name: "Artificial Intelligence",
-    code: "CS401",
-    professor: "Dr. John McCarthy",
-    day: "Monday",
-    startTime: "15:00",
-    endTime: "17:00",
-    location: "Room 204",
-    status: "pending",
-    color: "bg-purple-500"
+    courseCode: "CS101",
+    courseName: "Introduction to Computer Science",
+    dayOfWeek: 3, // Wednesday
+    startTime: "10:00",
+    endTime: "11:30",
+    location: "Science Building, Room 301",
+    color: "bg-blue-500",
   },
   {
     id: 6,
-    name: "Artificial Intelligence",
-    code: "CS401",
-    professor: "Dr. John McCarthy",
-    day: "Thursday",
-    startTime: "15:00",
-    endTime: "17:00",
-    location: "Room 204",
-    status: "pending",
-    color: "bg-purple-500"
+    courseCode: "MATH201",
+    courseName: "Calculus II",
+    dayOfWeek: 4, // Thursday
+    startTime: "13:00",
+    endTime: "14:30",
+    location: "Mathematics Department, Room 105",
+    color: "bg-purple-500",
   },
   {
     id: 7,
-    name: "Machine Learning",
-    code: "CS504",
-    professor: "Dr. Geoffrey Hinton",
-    day: "Tuesday",
+    courseCode: "PHY103",
+    courseName: "Physics for Engineers",
+    dayOfWeek: 4, // Thursday
     startTime: "14:00",
-    endTime: "16:00",
-    location: "Room 305",
-    status: "confirmed",
-    color: "bg-orange-500"
+    endTime: "15:30",
+    location: "Science Building, Room 401",
+    color: "bg-green-500",
   },
   {
     id: 8,
-    name: "Machine Learning",
-    code: "CS504",
-    professor: "Dr. Geoffrey Hinton",
-    day: "Thursday",
-    startTime: "10:00",
-    endTime: "12:00",
-    location: "Room 305",
-    status: "confirmed",
-    color: "bg-orange-500"
+    courseCode: "ENG102",
+    courseName: "English Composition",
+    dayOfWeek: 5, // Friday
+    startTime: "09:00",
+    endTime: "10:30",
+    location: "Arts Building, Room 204",
+    color: "bg-yellow-500",
   },
-  {
-    id: 9,
-    name: "Web Development",
-    code: "CS202",
-    professor: "Dr. Tim Berners-Lee",
-    day: "Wednesday",
-    startTime: "13:00",
-    endTime: "15:00",
-    location: "Lab 2",
-    status: "confirmed",
-    color: "bg-pink-500"
-  },
-  {
-    id: 10,
-    name: "Web Development",
-    code: "CS202",
-    professor: "Dr. Tim Berners-Lee",
-    day: "Friday",
-    startTime: "13:00",
-    endTime: "15:00",
-    location: "Lab 2",
-    status: "confirmed",
-    color: "bg-pink-500"
-  }
 ];
 
-// Group courses by their code
-const groupCoursesByCode = (courses: typeof mockAllocatedCourses) => {
-  const groupedCourses: { [key: string]: typeof mockAllocatedCourses } = {};
-  
-  courses.forEach(course => {
-    if (!groupedCourses[course.code]) {
-      groupedCourses[course.code] = [];
-    }
-    groupedCourses[course.code].push(course);
-  });
-  
-  return Object.values(groupedCourses).map(courseGroup => ({
-    code: courseGroup[0].code,
-    name: courseGroup[0].name,
-    professor: courseGroup[0].professor,
-    status: courseGroup[0].status,
-    sessions: courseGroup.map(session => ({
-      id: session.id,
-      day: session.day,
-      startTime: session.startTime,
-      endTime: session.endTime,
-      location: session.location
-    }))
-  }));
-};
-
 const AllocatedCourses = () => {
-  const [courses, setCourses] = useState(mockAllocatedCourses);
-  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState("list");
   
-  const groupedCourses = groupCoursesByCode(courses);
-  
-  const confirmedCourses = courses.filter(course => course.status === "confirmed");
-  const pendingCourses = courses.filter(course => course.status === "pending");
-  
-  const handleDropCourse = (courseCode: string) => {
-    // In a real app, this would call an API to drop the course
-    const updatedCourses = courses.filter(course => course.code !== courseCode);
-    setCourses(updatedCourses);
-    
-    toast({
-      title: "Course Dropped",
-      description: `You have successfully dropped ${courseCode}.`,
-    });
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "enrolled":
+        return "bg-green-500 hover:bg-green-600";
+      case "pending":
+        return "bg-yellow-500 hover:bg-yellow-600";
+      case "waitlisted":
+        return "bg-red-500 hover:bg-red-600";
+      default:
+        return "bg-gray-500 hover:bg-gray-600";
+    }
   };
-
+  
   return (
     <div className="min-h-screen flex bg-gray-50 dark:bg-gray-900">
       <Sidebar />
@@ -187,108 +159,98 @@ const AllocatedCourses = () => {
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <header className="mb-8">
-            <h1 className="text-3xl font-bold text-university-800 dark:text-university-200">My Courses</h1>
-            <p className="text-university-600 dark:text-university-400">View your allocated courses and timetable</p>
+            <h1 className="text-3xl font-bold text-university-800 dark:text-white">My Courses</h1>
+            <p className="text-university-600 dark:text-gray-300">View your enrolled courses and schedule</p>
           </header>
           
           {/* Tabs */}
-          <Tabs defaultValue="timetable" className="mb-8">
-            <TabsList className="grid grid-cols-2 w-[400px]">
-              <TabsTrigger value="timetable" className="flex items-center">
-                <Calendar className="h-4 w-4 mr-2" />
-                Timetable View
-              </TabsTrigger>
-              <TabsTrigger value="list" className="flex items-center">
-                <ListChecks className="h-4 w-4 mr-2" />
-                List View
-              </TabsTrigger>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
+            <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto dark:bg-gray-800">
+              <TabsTrigger value="list" className="dark:data-[state=active]:bg-gray-700 dark:text-white">Course List</TabsTrigger>
+              <TabsTrigger value="timetable" className="dark:data-[state=active]:bg-gray-700 dark:text-white">Timetable</TabsTrigger>
             </TabsList>
             
-            {/* Timetable Tab */}
-            <TabsContent value="timetable">
-              <Card>
-                <CardHeader>
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <CardTitle className="dark:text-white">Weekly Schedule</CardTitle>
-                      <CardDescription className="dark:text-gray-300">Your allocated course schedule for this semester</CardDescription>
-                    </div>
-                    <Button variant="outline" className="flex items-center gap-2 dark:text-gray-300 dark:border-gray-600">
-                      <Download className="h-4 w-4" /> Export
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <TimetableView courses={courses} />
-                </CardContent>
-              </Card>
+            {/* List View */}
+            <TabsContent value="list" className="mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                {myCourses.map((course) => (
+                  <Card key={course.id} className="hover:shadow-md transition-shadow dark:bg-gray-800 dark:border-gray-700">
+                    <CardHeader className="pb-2">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="text-sm text-university-600 dark:text-university-400 font-medium">{course.code}</p>
+                          <CardTitle className="text-xl text-university-800 dark:text-white">{course.title}</CardTitle>
+                        </div>
+                        <Badge className={`${getStatusColor(course.status)} dark:text-white`}>
+                          {course.status.charAt(0).toUpperCase() + course.status.slice(1)}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <div className="flex items-center text-university-600 dark:text-gray-300">
+                          <User className="h-4 w-4 mr-2" />
+                          <span className="text-sm">{course.instructor}</span>
+                        </div>
+                        <div className="flex items-center text-university-600 dark:text-gray-300">
+                          <Clock className="h-4 w-4 mr-2" />
+                          <span className="text-sm">{course.schedule}</span>
+                        </div>
+                        <div className="flex items-center text-university-600 dark:text-gray-300">
+                          <MapPin className="h-4 w-4 mr-2" />
+                          <span className="text-sm">{course.location}</span>
+                        </div>
+                        <div className="flex items-center text-university-600 dark:text-gray-300">
+                          <BookOpen className="h-4 w-4 mr-2" />
+                          <span className="text-sm">{course.credits} Credits</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </TabsContent>
             
-            {/* List View Tab */}
-            <TabsContent value="list">
-              <Card>
+            {/* Timetable View */}
+            <TabsContent value="timetable" className="mt-6">
+              <Card className="dark:bg-gray-800 dark:border-gray-700">
                 <CardHeader>
-                  <CardTitle className="dark:text-white">Course List</CardTitle>
-                  <CardDescription className="dark:text-gray-300">
-                    You have {confirmedCourses.length} confirmed and {pendingCourses.length} pending courses
-                  </CardDescription>
+                  <CardTitle className="text-university-800 dark:text-white flex items-center">
+                    <Calendar className="h-5 w-5 mr-2" />
+                    Weekly Schedule
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-6">
-                    {groupedCourses.length > 0 ? (
-                      groupedCourses.map((course) => (
-                        <div key={course.code} className="border dark:border-gray-700 rounded-lg overflow-hidden">
-                          <div className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-800 border-b dark:border-gray-700">
-                            <div>
-                              <h3 className="font-medium text-university-800 dark:text-university-200">{course.name} ({course.code})</h3>
-                              <p className="text-sm text-university-600 dark:text-university-400">Prof. {course.professor}</p>
-                            </div>
-                            <div className="flex items-center gap-4">
-                              <Badge
-                                className={
-                                  course.status === "confirmed"
-                                    ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-800"
-                                    : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-800"
-                                }
-                              >
-                                {course.status === "confirmed" ? "Confirmed" : "Pending"}
-                              </Badge>
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900 dark:hover:text-red-300"
-                                onClick={() => handleDropCourse(course.code)}
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                          
-                          <div className="p-4 dark:bg-gray-800">
-                            <h4 className="text-sm font-medium text-university-700 dark:text-university-300 mb-2">Schedule:</h4>
-                            <div className="space-y-2">
-                              {course.sessions.map((session) => (
-                                <div key={session.id} className="flex items-center text-sm">
-                                  <div className="w-24 font-medium dark:text-gray-200">{session.day}:</div>
-                                  <div className="dark:text-gray-300">{session.startTime} - {session.endTime}</div>
-                                  <div className="ml-4 text-gray-500 dark:text-gray-400">({session.location})</div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-center py-12">
-                        <h3 className="text-lg font-medium text-university-800 dark:text-university-200 mb-2">No courses allocated yet</h3>
-                        <p className="text-university-600 dark:text-university-400">Check the available courses page to apply for courses</p>
-                      </div>
-                    )}
-                  </div>
+                  <TimetableView events={timetableEvents} />
                 </CardContent>
               </Card>
             </TabsContent>
           </Tabs>
+          
+          {/* Summary */}
+          <Card className="mt-6 dark:bg-gray-800 dark:border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-university-800 dark:text-white">Course Summary</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-university-50 dark:bg-gray-700 p-4 rounded-lg">
+                  <p className="text-university-600 dark:text-gray-300 text-sm">Total Courses</p>
+                  <p className="text-2xl font-bold text-university-800 dark:text-white">{myCourses.length}</p>
+                </div>
+                <div className="bg-university-50 dark:bg-gray-700 p-4 rounded-lg">
+                  <p className="text-university-600 dark:text-gray-300 text-sm">Total Credits</p>
+                  <p className="text-2xl font-bold text-university-800 dark:text-white">
+                    {myCourses.reduce((sum, course) => sum + course.credits, 0)}
+                  </p>
+                </div>
+                <div className="bg-university-50 dark:bg-gray-700 p-4 rounded-lg">
+                  <p className="text-university-600 dark:text-gray-300 text-sm">Class Hours</p>
+                  <p className="text-2xl font-bold text-university-800 dark:text-white">12 hrs/week</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

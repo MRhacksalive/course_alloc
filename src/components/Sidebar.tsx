@@ -30,7 +30,7 @@ const Sidebar = ({ isAdmin = false }: SidebarProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { theme, setTheme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
 
   const studentLinks = [
     { title: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
@@ -55,16 +55,12 @@ const Sidebar = ({ isAdmin = false }: SidebarProps) => {
     setCollapsed(!collapsed);
   };
 
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
-
   const getThemeIcon = () => {
-    return theme === "dark" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />;
+    return theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />;
   };
 
   const getThemeText = () => {
-    return theme === "dark" ? "Dark Mode" : "Light Mode";
+    return theme === "dark" ? "Light Mode" : "Dark Mode";
   };
 
   return (
@@ -127,25 +123,16 @@ const Sidebar = ({ isAdmin = false }: SidebarProps) => {
 
         {/* Theme Toggle */}
         <div className="p-4 border-t dark:border-gray-700">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full justify-between text-university-600 hover:bg-university-50 hover:text-university-800 dark:text-university-400 dark:border-gray-700 dark:hover:bg-gray-700 dark:hover:text-university-200"
-                  onClick={toggleTheme}
-                >
-                  <div className="flex items-center">
-                    {getThemeIcon()}
-                    <span className="ml-2">{getThemeText()}</span>
-                  </div>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                <p>Click to toggle between light and dark theme</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <Button
+            variant="outline"
+            className="w-full justify-between text-university-600 hover:bg-university-50 hover:text-university-800 dark:text-university-400 dark:border-gray-700 dark:hover:bg-gray-700 dark:hover:text-university-200"
+            onClick={toggleTheme}
+          >
+            <div className="flex items-center">
+              {getThemeIcon()}
+              <span className="ml-2">{getThemeText()}</span>
+            </div>
+          </Button>
         </div>
 
         {/* Footer with Logout */}

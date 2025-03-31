@@ -1,14 +1,11 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Sidebar from "@/components/Sidebar";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Users, AlertTriangle, CheckCircle } from "lucide-react";
 
 const Admin = () => {
-  const navigate = useNavigate();
-  
   // Mock data - in a real app these would come from API calls
   const [stats] = useState({
     totalStudents: 1254,
@@ -78,36 +75,6 @@ const Admin = () => {
                   <h3 className="text-2xl font-bold text-university-800 dark:text-white">{stats.completedAllocations}</h3>
                   <p className="text-xs text-university-500 dark:text-gray-400">Successfully allocated</p>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-          
-          {/* Main Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <Card className="bg-gradient-to-br from-university-500 to-university-700 text-white shadow-md">
-              <CardContent className="p-6">
-                <h3 className="text-xl font-bold mb-2">Manage Courses</h3>
-                <p className="mb-4">Add, edit, or remove courses from the system. Set capacity, schedule, and instructor assignments.</p>
-                <Button 
-                  variant="secondary" 
-                  className="bg-white text-university-700 hover:bg-gray-100"
-                  onClick={() => navigate('/admin/courses')}
-                >
-                  Go to Course Management
-                </Button>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-white dark:bg-gray-800 shadow-md border-2 border-university-200 dark:border-gray-700">
-              <CardContent className="p-6">
-                <h3 className="text-xl font-bold text-university-800 dark:text-white mb-2">Manage Students</h3>
-                <p className="text-university-600 dark:text-gray-300 mb-4">Review student information, manage allocations, and process course approvals.</p>
-                <Button 
-                  className="bg-university-600 hover:bg-university-700"
-                  onClick={() => navigate('/admin/students')}
-                >
-                  Go to Student Management
-                </Button>
               </CardContent>
             </Card>
           </div>

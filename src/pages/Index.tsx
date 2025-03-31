@@ -16,7 +16,7 @@ const Index = () => {
   const [role, setRole] = useState("student");
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,10 +43,6 @@ const Index = () => {
     }
   };
 
-  const toggleTheme = () => {
-    setTheme(resolvedTheme === "dark" ? "light" : "dark");
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-university-50 to-university-100 dark:from-gray-900 dark:to-gray-800 flex flex-col items-center justify-center p-6">
       <Button 
@@ -55,7 +51,7 @@ const Index = () => {
         onClick={toggleTheme}
         className="absolute top-4 right-4 text-university-600 hover:text-university-800 dark:text-university-400 dark:hover:text-university-300"
       >
-        {resolvedTheme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+        {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
       </Button>
       
       <div className="mb-8 text-center">
